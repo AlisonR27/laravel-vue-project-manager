@@ -13,10 +13,32 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        $userProjects = Project::with('creator')->where('creator_id', auth()->id())->get();
+        $creator_id = auth()->id();
+        $userProjects = Project::with('creator')->where('creator_id', $creator_id)->get();
+
+        $totalProjects = $userProjects->count();
+
+        $inProgress = Project::where('creator_id', $creator_id)
+            ->where('status', 'Active')
+            ->count();
+
+        $delayed = Project::where('creator_id', $creator_id)
+            ->where('status', 'Active')
+            ->where('end_date', '<', now())
+            ->count();
+
+        $totalValueInProgress = Project::where('creator_id', $creator_id)
+            ->where('status', 'Active')
+            ->sum('value');
 
         return Inertia::render('Dashboard', [
-            'user_projects' => $userProjects
+            'user_projects' => $userProjects,
+            'metrics' => [
+                'totalProjects' => $totalProjects,
+                'inProgress' => $inProgress,
+                'delayed' => $delayed,
+                'totalValueInProgress' => $totalValueInProgress
+            ]
         ]);
     })->name('dashboard');
 
