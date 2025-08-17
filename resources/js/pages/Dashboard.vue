@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { DollarSign, Laptop, ClockAlert } from 'lucide-vue-next';
+import { DollarSign, Laptop, ClockAlert, CirclePlay, ChevronsRight, Ban, CircleCheck, CircleDotDashed } from 'lucide-vue-next';
 
 import { type BreadcrumbItem } from '@/types';
 
@@ -8,6 +8,7 @@ import { Head } from '@inertiajs/vue3';
 
 import { computed } from 'vue';
 import Badge from '@/components/ui/badge/Badge.vue';
+import MetricCard from '@/components/MetricCard.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -18,14 +19,18 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const props = defineProps(['user-projects', 'user-tasks', 'metrics'])
 
-function formatCurrency(value: string) {
-    let [int, dec] = value.split('.')
-    int = int.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-    return `${int}.${dec}`
+const badgeIcon = (status: string) => {
+    switch(status){
+        case "Inactive":
+            return Ban
+        case "Active":
+            return ChevronsRight
+        case "Pending":
+            return CircleDotDashed
+        case "Completed":
+            return CircleCheck
+    }
 }
-const totalValueInProgress = computed(() => formatCurrency(props.metrics.totalValueInProgress))
-
-
 </script>
 
 <template>
@@ -33,40 +38,14 @@ const totalValueInProgress = computed(() => formatCurrency(props.metrics.totalVa
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-wrap gap-10 overflow-x-auto rounded-xl p-4">
-            <div class="grid h-min w-full auto-rows-min gap-4 md:grid-cols-3">
-                <div
-                    class="relative flex aspect-video flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-sidebar-border/70 bg-green-200 transition-all hover:bg-green-300 dark:border-green-900 dark:bg-sidebar"
-                >
-                    <div class="aspect-square rounded-full p-2 dark:bg-green-900">
-                        <DollarSign :size="32" />
-                    </div>
-                    <b class="mt-2 text-4xl"> $ {{ totalValueInProgress }} </b>
-                    <span> Worth in projects </span>
-                </div>
-                <div
-                    class="relative flex aspect-video flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-sidebar-border/70 bg-indigo-200 transition-all hover:bg-indigo-300 dark:border-indigo-900 dark:bg-sidebar"
-                >
-                    <div class="aspect-square rounded-full p-2 dark:bg-indigo-900">
-                        <Laptop :size="32" />
-                    </div>
-                    <b class="mt-2 text-4xl">
-                        {{ metrics.totalProjects }}
-                    </b>
-                    <span> Projects </span>
-                </div>
-                <div
-                    class="relative flex aspect-video flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-sidebar-border/70 bg-red-100 transition-all hover:bg-red-400 dark:border-red-950 dark:bg-sidebar"
-                >
-                    <div class="aspect-square rounded-full p-2 dark:bg-red-950">
-                        <ClockAlert :size="32" />
-                    </div>
-                    <b class="mt-2 text-4xl">
-                        {{ metrics.delayed }}
-                    </b>
-                    <span> Late Projects </span>
-                </div>
+            <div class="grid h-min w-full gap-4 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 overflow-x-hidden ">
+                <MetricCard key="total-value" color="green" :icon="DollarSign" label="Worth in projects" :value="metrics.totalValueInProgress"/>
+                <MetricCard key="local-value" color="gray" :icon="CirclePlay" label="Active Projects" :value="metrics.inProgress"/>
+                <MetricCard key="late-projects" color="red" :icon="ClockAlert" label="Late Projects" :value="metrics.delayed"/>
+                <MetricCard key="total-projects" color="indigo" :icon="Laptop" label="Total projects" :value="metrics.totalProjects" class="lg:hidden xl:flex"/>
             </div>
-            <div class="relative w-6/12 rounded-xl border border-sidebar-border/70 px-8 py-6 md:min-h-min dark:border-sidebar-border">
+            <!-- Lists -->
+            <div class="relative lg:w-6/12 flex-2 rounded-xl border border-sidebar-border/70 px-8 py-6 md:min-h-min dark:border-sidebar-border">
                 <h2 class="mb-5 text-2xl font-bold text-accent-foreground">My Recent Projects</h2>
                 <div role="list" class="flex flex-col gap-2">
                     <a
@@ -79,11 +58,11 @@ const totalValueInProgress = computed(() => formatCurrency(props.metrics.totalVa
                         <span class="w-9/12">
                             {{ project.name }}
                         </span>
-                        <Badge class="w-3/12" :status="project.status"/>
+                        <Badge class="md:w-3/12" :status="project.status" :icon="badgeIcon(project.status)"/>
                     </a>
                 </div>
             </div>
-            <div class="relative w-5/12 flex-2 rounded-xl border border-sidebar-border/70 px-8 py-6 md:min-h-min dark:border-sidebar-border">
+            <div class="relative lg:w-5/12 flex-2 rounded-xl border border-sidebar-border/70 px-8 py-6 md:min-h-min dark:border-sidebar-border">
                 <h2 class="mb-5 text-2xl font-bold text-accent-foreground">My Recent Tasks</h2>
                 <div role="list" class="flex flex-col gap-2">
                     <a
@@ -93,10 +72,10 @@ const totalValueInProgress = computed(() => formatCurrency(props.metrics.totalVa
                         :key="task.id"
                         class="flex flex-row items-center justify-between gap-5 rounded-sm border p-4 hover:bg-sidebar"
                     >
-                        <span class="w-9/12">
+                        <span class="w-9/12 overflow-x-hidden whitespace-nowrap text-ellipsis">
                             {{ task.title }}
                         </span>
-                        <Badge class="w-4/12" :status="task.status"/>
+                        <Badge class="md:w-3/12" :status="task.status" :icon="badgeIcon(task.status)"/>
                     </a>
                 </div>
             </div>
@@ -104,9 +83,6 @@ const totalValueInProgress = computed(() => formatCurrency(props.metrics.totalVa
     </AppLayout>
 </template>
 <style scoped>
-#metrics-value:deep(svg) {
-    stroke: green;
-}
 td {
     text-align: start;
 }
