@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Models\Project;
+use App\Models\Task;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -14,7 +15,12 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         $creator_id = auth()->id();
-        $userProjects = Project::with('creator')->where('creator_id', $creator_id)->get();
+
+        $userProjects = Project::with('creator')->where('creator_id', $creator_id)->limit(5)->get();
+
+        $userTasks = Task::whereHas('project', function ($query) {
+            $query->where('creator_id', auth()->id());
+        })->limit(5)->get();
 
         $totalProjects = $userProjects->count();
 
@@ -32,7 +38,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->sum('value');
 
         return Inertia::render('Dashboard', [
-            'user_projects' => $userProjects,
+            'user-projects' => $userProjects,
+            'user-tasks' => $userTasks,
             'metrics' => [
                 'totalProjects' => $totalProjects,
                 'inProgress' => $inProgress,
