@@ -4,8 +4,10 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { Table } from '@/components/ui/table';
 import DeleteItem from '@/components/DeleteItem.vue';
-import { ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import ProjectSearchForm from '@/components/ProjectSearchForm.vue';
+
+import { addToast } from '@/composables/useToast';
 
 const breadcrumbs = [
     {
@@ -16,73 +18,79 @@ const breadcrumbs = [
         title: 'Projects',
         href: '#',
     },
-] as BreadcrumbItem[]
+] as BreadcrumbItem[];
 
 type ProjectRowKeys = {
-    id: number,
-    name: string,
-    status: string,
-    updated_at: Date,
-    creator: string
-}
+    id: number;
+    name: string;
+    status: string;
+    updated_at: Date;
+    creator: string;
+};
 
 const props = defineProps({
     projects: {
         type: Array<ProjectRowKeys>,
-        required: true
+        required: true,
     },
-    deleted: {
-        type: Boolean,
-        required: false
-    }
-})
+    alert: {
+        type: Object,
+        required: false,
+    },
+});
 
 const headers = [
     {
         key: 'id',
-        label: '#'
+        label: '#',
     },
     {
         key: 'name',
         label: 'Name',
-        colspan: 2
+        colspan: 2,
     },
     {
         key: 'status',
-        label: 'Status'
+        label: 'Status',
     },
     {
         key: 'creator',
-        label: 'Created By'
+        label: 'Created By',
     },
     {
         key: 'actions',
-        label: ''
-    }
-]
+        label: '',
+    },
+];
 
-const deleteOpen = ref(false)
+const deleteOpen = ref(false);
 
-const deleteModalId = ref(0)
+const deleteModalId = ref(0);
 
-function handleProjectAction({ id, type} : { id: number, type: string}) {
-    switch(type) {
-        case "detail":
-            router.visit(`/projects/${id}`)
-            break
-        case "edit":
-            router.visit(`/projects/${id}/edit`)
-            break
-        case "delete":
-            deleteOpen.value = true
-            deleteModalId.value = id
-            break
+function handleProjectAction({ id, type }: { id: number; type: string }) {
+    switch (type) {
+        case 'detail':
+            router.visit(`/projects/${id}`);
+            break;
+        case 'edit':
+            router.visit(`/projects/${id}/edit`);
+            break;
+        case 'delete':
+            deleteOpen.value = true;
+            deleteModalId.value = id;
+            break;
     }
 }
 
 function handleFormFilters(filters: any) {
-    router.get(route('project.all'), filters)}
+    router.get(route('project.all'), filters);
+}
 
+watch(
+    () => props.alert,
+    (newAlert) => {
+        addToast('Alert', newAlert!.message, newAlert!.type);
+})
 </script>
 
 <template>
@@ -91,16 +99,22 @@ function handleFormFilters(filters: any) {
     <DeleteItem type="project" :item-id="deleteModalId" :open="deleteOpen" @close="deleteOpen = false" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex flex-col gap-4 rounded-xl py-2 px-4">
-            <ProjectSearchForm @filter="handleFormFilters"/>
+        <div class="flex flex-col gap-4 rounded-xl px-4 py-2">
+            <ProjectSearchForm @filter="handleFormFilters" />
         </div>
         <div class="flex flex-1 flex-col gap-4 rounded-xl p-4">
-            <Table title="Recent Projects" :headers="headers" :rows="projects" row-key="id" :paginated="false" type="Projects" @project="handleProjectAction">
+            <Table
+                title="Recent Projects"
+                :headers="headers"
+                :rows="projects"
+                row-key="id"
+                :paginated="false"
+                type="Projects"
+                @project="handleProjectAction"
+            >
                 <template v-slot:empty>
                     <td colspan="5" class="py-10">
-                        <b class="w-full text-center text-xl">
-                            No projects found on the registry
-                        </b>
+                        <b class="w-full text-center text-xl"> No projects found on the registry </b>
                     </td>
                 </template>
             </Table>
