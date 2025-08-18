@@ -66,16 +66,17 @@ const headers = [
         label: '',
     },
 ];
+const projectsStore = useProjectStore()
 
 const deleteOpen = ref(false);
 
 const deleteModalId = ref(0);
 
 const pageSize = computed(() => {
-    return useProjectStore().filters.page_size;
+    return projectsStore.filters.page_size;
 });
 const page = computed(() => {
-    return useProjectStore().filters.page;
+    return projectsStore.filters.page;
 });
 
 function handleProjectAction({ id, type }: { id: number; type: string }) {
@@ -94,14 +95,20 @@ function handleProjectAction({ id, type }: { id: number; type: string }) {
 }
 
 function handleFormFilters(filters: any) {
-    const cleanFilters = filters
+    const cleanFilters = projectsStore.getOnlyFilled()
+    if(cleanFilters.order_by) {
+        const orderString = projectsStore.filters.order_by as any
+        const [order_by, order] = orderString.split('-')
+        delete cleanFilters.order_by
+        Object.assign(cleanFilters,{order_by, order})
+    }
     delete cleanFilters.page
     delete cleanFilters.page_size
     router.get(route('project.all'), cleanFilters);
 }
 
 function handlePaginate(page: any) {
-    router.get(route('task.all'), { ...useTasksStore().getOnlyFilled(), page }, { preserveState: true });
+    router.get(route('project.all'), { ...useTasksStore().getOnlyFilled(), page }, { preserveState: true });
 }
 
 /**
@@ -111,11 +118,20 @@ function handlePaginate(page: any) {
  */
 function handlePageSize(page_size: number) {
     const filled = useTasksStore().getOnlyFilled();
-    if (page_size != 10) router.get(route('task.all'), { ...filled, page_size }, {});
+    if (page_size != 10) router.get(route('project.all'), { ...filled, page_size }, {});
     else {
         delete filled.page_size;
-        router.get(route('task.all'), { ...filled }, {});
+        router.get(route('project.all'), { ...filled }, {});
     }
+}
+
+function handleOrderBy() {
+    const filled = useTasksStore().getOnlyFilled();
+    const orderString = projectsStore.filters.order_by as any
+    delete filled.page
+    delete filled.page_size
+    const [order_by, order] = orderString.split('-')
+    router.get(route('project.all'), {...filled, order_by, order})
 }
 
 watch(
@@ -138,6 +154,18 @@ watch(
         </div>
         <div class="flex flex-1 flex-col gap-4 rounded-xl p-4">
             <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 px-8 py-6 md:min-h-min dark:border-sidebar-border">
+                <div class="absolute top-5 right-5">
+                    <label for="order_by" class="mr-2">Order:</label>
+                    <select v-model="projectsStore.filters.order_by" name="order_by" id="order_by" class="border rounded py-2" @change="handleOrderBy">
+                        <option :value="null" selected> Default </option>
+                        <option value="name-asc">Name (asc)</option>
+                        <option value="name-desc">Name (desc)</option>
+                        <option value="updated_at-asc">Last Updated (asc) </option>
+                        <option value="updated_at-desc">Last Updated (desc) </option>
+                        <option value="id-asc">Identifier (asc)</option>
+                        <option value="id-desc">Identifier (desc)</option>
+                    </select>
+                </div>
                 <Table
                     title="Recent Projects"
                     :headers="headers"

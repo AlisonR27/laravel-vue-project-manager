@@ -3,7 +3,7 @@ import { reactive } from 'vue';
 
 export const useProjectStore = defineStore('projects', () => {
     const filters = reactive(
-        { name: '', status: '', start_date: '', end_date: '', creator_id: '', min_value: '', max_value: '', page: 1, page_size: 10 }
+        { name: '', status: '', start_date: '', end_date: '', creator_id: '', min_value: '', max_value: '', page: 1, page_size: 10, order_by: null }
     )
 
     function setFilters(newFilters: Partial<typeof filters>) {

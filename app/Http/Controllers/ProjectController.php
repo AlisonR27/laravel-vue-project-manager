@@ -23,6 +23,9 @@ class ProjectController extends Controller
 
         $page_size = $request->query('page_size', 10);
 
+        $orderField = $request->query('order_by');
+        $orderClassification = $request->query('order');
+
         $search = $request->query('search');
         $status = $request->query('status');
         $start_date = $request->query('start_date');
@@ -41,8 +44,9 @@ class ProjectController extends Controller
         if($min_value) $query->where('value', '>=', $min_value);
         if($max_value) $query->where('value', '<=', $max_value);
         if($creator_id) $query->where('creator_id', $creator_id);
+        if($orderField && $orderClassification) $query->orderBy($orderField, $orderClassification);
 
-        $projects =$query->paginate($page_size)
+        $projects = $query->paginate($page_size)
             ->through(fn ($project) => [
                 'id' => $project->id,
                 'name' => $project->name,
