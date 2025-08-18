@@ -70,9 +70,12 @@ class ProjectController extends Controller
      */
     public function show($id)
     {
+
         $project = Project::with('creator')->findOrFail($id);
 
-        $taskCount = Task::where('project_id', $id)->count();
+        $tasks = Task::where('project_id', $id);
+
+        $taskCount = $tasks->count();
 
         $activeTasks = Task::where('project_id', $id)->where('status', 'Pending')->count();
 
@@ -80,6 +83,7 @@ class ProjectController extends Controller
 
         return Inertia::render('Project/Project.Detail', [
             'project' => $project,
+            'tasks' => $tasks->latest()->take(5)->get(),
             'tasks_bi' => [
                 'count' => $taskCount,
                 'active' => $activeTasks,
