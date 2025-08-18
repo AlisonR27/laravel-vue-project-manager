@@ -28,6 +28,7 @@ class Project extends Model
         'end_date',
         'value',
         'status',
+        'creator_id'
     ];
 
     public function creator($foreignKey = null, $localKey = null): \Illuminate\Database\Eloquent\Relations\BelongsTo
