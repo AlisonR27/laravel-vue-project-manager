@@ -5,6 +5,7 @@ import type { BreadcrumbItem } from '@/types';
 import { Table } from '@/components/ui/table';
 import DeleteItem from '@/components/DeleteItem.vue';
 import { ref } from 'vue';
+import ProjectSearchForm from '@/components/ProjectSearchForm.vue';
 
 const breadcrumbs = [
     {
@@ -78,6 +79,10 @@ function handleProjectAction({ id, type} : { id: number, type: string}) {
             break
     }
 }
+
+function handleFormFilters(filters: any) {
+    router.get(route('project.all'), filters)}
+
 </script>
 
 <template>
@@ -86,14 +91,19 @@ function handleProjectAction({ id, type} : { id: number, type: string}) {
     <DeleteItem type="project" :item-id="deleteModalId" :open="deleteOpen" @close="deleteOpen = false" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex flex-1 flex-col gap-4 rounded-xl py-2 px-4">
-            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 px-8 py-6 md:min-h-min dark:border-sidebar-border">
-                <h3  class="text-xl font-bold text-accent-foreground"> Filtros </h3>
-                To do
-            </div>
+        <div class="flex flex-col gap-4 rounded-xl py-2 px-4">
+            <ProjectSearchForm @filter="handleFormFilters"/>
         </div>
         <div class="flex flex-1 flex-col gap-4 rounded-xl p-4">
-            <Table title="Recent Projects" :headers="headers" :rows="projects" row-key="id" :paginated="false" type="Projects" @project="handleProjectAction"/>
+            <Table title="Recent Projects" :headers="headers" :rows="projects" row-key="id" :paginated="false" type="Projects" @project="handleProjectAction">
+                <template v-slot:empty>
+                    <td colspan="5" class="py-10">
+                        <b class="w-full text-center text-xl">
+                            No projects found on the registry
+                        </b>
+                    </td>
+                </template>
+            </Table>
         </div>
     </AppLayout>
 </template>
