@@ -48,6 +48,8 @@
     --color-chart-4: var(--chart-4);
     --color-chart-5: var(--chart-5);
 
+
+
     --color-sidebar: var(--sidebar-background);
     --color-sidebar-foreground: var(--sidebar-foreground);
     --color-sidebar-primary: var(--sidebar-primary);
@@ -164,4 +166,12 @@
     body {
         @apply bg-background text-foreground;
     }
+}
+
+td {
+    text-align: center;
+}
+
+li[data-slot=breadcrumb-item]:last-of-type span{
+    font-weight: bold;
 }
