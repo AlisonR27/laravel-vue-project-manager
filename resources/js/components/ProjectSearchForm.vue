@@ -7,6 +7,7 @@ import UserSearchCombobox from '@/components/UserSearchCombobox.vue'
 import { useUserStore } from '@/store/users'
 import { useProjectStore } from '@/store/projects'
 import { usePage } from '@inertiajs/vue3'
+import CurrencyInput from '@/components/ui/input/CurrencyInput.vue';
 
 const page = usePage()
 const auth = { user: page.props.auth.user }
@@ -103,9 +104,38 @@ onBeforeMount(() => {
 
                     <input v-model="projectsStore.filters.start_date" type="date" class="rounded border px-3 py-1" />
                     <input v-model="projectsStore.filters.end_date" type="date" class="rounded border px-3 py-1" />
-                    <input v-model.number="projectsStore.filters.min_value" type="number" min="0" placeholder="Min value" class="rounded border px-3 py-1" />
-                    <input v-model.number="projectsStore.filters.max_value" type="number" min="0" placeholder="Max value" class="rounded border px-3 py-1" />
-
+                    <CurrencyInput
+                        placeholder="Minimum value"
+                        v-model="projectsStore.filters.min_value"
+                        :options="{
+                            locale:'en-US',
+                            currency: 'USD',
+                            currencyDisplay: 'narrowSymbol',
+                            hideCurrencySymbolOnFocus: false,
+                            hideGroupingSeparatorOnFocus: false,
+                            hideNegligibleDecimalDigitsOnFocus: false,
+                            autoDecimalDigits: true,
+                            useGrouping: true,
+                            accountingSign: true
+                        }"
+                        class="border rounded p-2"
+                    />
+                    <CurrencyInput
+                        placeholder="Maximum value"
+                        v-model="projectsStore.filters.max_value"
+                        :options="{
+                            locale:'en-US',
+                            currency: 'USD',
+                            currencyDisplay: 'narrowSymbol',
+                            hideCurrencySymbolOnFocus: false,
+                            hideGroupingSeparatorOnFocus: false,
+                            hideNegligibleDecimalDigitsOnFocus: false,
+                            autoDecimalDigits: true,
+                            useGrouping: true,
+                            accountingSign: true
+                        }"
+                        class=" border rounded p-2"
+                    />
                     <div class="flex w-full flex-row gap-2">
                         <Button variant="outline" :disabled="areAllEmpty" @click.prevent="clearFilters"> Clear Filters </Button>
                         <Button type="submit" variant="default" :disabled="areAllEmpty"> Apply Filters </Button>
