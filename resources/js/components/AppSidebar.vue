@@ -24,11 +24,21 @@ const mainNavItems: NavItem[] = [
         title: 'Projects',
         href: '/projects',
         icon: BriefcaseBusiness,
+        children: [
+            { title: 'New Project', href: '/projects/new' },
+            { title: 'All Projects', href: '/projects' },
+            { title: 'My Projects', href: '/projects?creator-id='+auth.user.id },
+        ],
     },
     {
         title: 'Tasks',
         href: '/tasks',
         icon: ClipboardList,
+        children: [
+            { title: 'New Task', href: '/tasks/new' },
+            { title: 'All Tasks', href: '/tasks' },
+            { title: 'My Tasks', href: '/tasks?creator-id='+auth.user.id },
+        ],
     },
 ];
 
