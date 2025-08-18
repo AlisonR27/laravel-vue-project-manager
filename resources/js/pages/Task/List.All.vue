@@ -86,7 +86,10 @@ function closeTask() {
     isTaskOpen.value = false;
 }
 function handleFormFilters(filters: any) {
-    router.get(route('task.all'), filters);
+    const cleanFilters = filters
+    delete cleanFilters.page
+    delete cleanFilters.page_size
+    router.get(route('task.all'), cleanFilters);
 }
 
 function handlePaginate(page: any) {
