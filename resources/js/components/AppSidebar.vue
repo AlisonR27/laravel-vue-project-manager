@@ -4,9 +4,15 @@ import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { ListChecks, Folder, LayoutGrid, ClipboardList, BriefcaseBusiness } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
+
+// Page data
+const page = usePage();
+const auth = {
+    user: page.props.auth.user as User,
+};
 
 const mainNavItems: NavItem[] = [
     {
@@ -22,19 +28,19 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Tasks',
         href: '/tasks',
-        icon: ClipboardList
-    }
+        icon: ClipboardList,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
     {
         title: 'My Projects',
-        href: '/projects/?q=creator_id=x',
+        href: `/projects/?creator_id=${auth.user.id}`,
         icon: Folder,
     },
     {
         title: 'My Tasks',
-        href: '/tasks/?q=creator_id=x',
+        href: `/tasks/?creator_id=${auth.user.id}`,
         icon: ListChecks,
     },
 ];
