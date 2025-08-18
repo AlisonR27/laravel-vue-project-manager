@@ -79,21 +79,20 @@ watch(() => props.user, () => {
                 role="button"
                 aria-description="Open user search input"
                 class="flex w-full flex-row items-center gap-2 rounded border px-3 py-1"
-                @click="editing = true"
             >
-                <AvatarImage v-if="selectedUser.avatar" :src="selectedUser.avatar!" :alt="selectedUser.name" />
-                <div class="aspect-square w-7 rounded bg-gray-300 p-1 text-center text-black" v-else>{{ getInitials(selectedUser.name) }}</div>
+                <AvatarImage v-if="selectedUser.avatar" :src="selectedUser.avatar!" :alt="selectedUser.name" class="pointer-events-none"/>
+                <div class="aspect-square w- rounded bg-gray-300 p-1 text-center text-black pointer-events-none" v-else>{{ getInitials(selectedUser.name) }}</div>
                 {{ selectedUser.name }}
-                <button @click.prevent="removeSelected" class="absolute top-3 right-2 cursor-pointer hover:fill-gray-800">
+                <button @click.prevent="removeSelected" class="absolute top-3 right-2 cursor-pointer z-50 pointer-events-autohover:fill-gray-800">
                     <XCircle :size="18" />
                 </button>
             </div>
-            <ComboboxInput v-else class="w-full rounded border px-3 py-1" placeholder="Search for an creator" />
-            <ComboboxTrigger v-if="editing" class="absolute top-3 right-2 cursor-pointer hover:fill-gray-800">
+            <ComboboxInput v-else class="w-full rounded border px-3 py-1" placeholder="Search for a creator" />
+            <ComboboxTrigger v-if="editing" class="absolute top-2 right-2 cursor-pointer hover:fill-gray-800">
                 <TextSearch :size="18" />
             </ComboboxTrigger>
         </ComboboxAnchor>
-        <ComboboxContent class="absolute z-10 w-full border bg-background p-3">
+        <ComboboxContent class="absolute z-50 w-full border bg-background p-3">
             <ComboboxViewport class="text-sm">
                 <ComboboxEmpty />
                 <ComboboxItem
