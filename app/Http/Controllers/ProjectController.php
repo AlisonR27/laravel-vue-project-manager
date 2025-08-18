@@ -21,6 +21,8 @@ class ProjectController extends Controller
     {
         $alert = session('alert');
 
+        $page_size = $request->query('page_size', 10);
+
         $search = $request->query('search');
         $status = $request->query('status');
         $start_date = $request->query('start_date');
@@ -36,12 +38,12 @@ class ProjectController extends Controller
         if($status) $query->where('status', $status);
         if($start_date) $query->where('created_at', '>=', Carbon::parse($start_date));
         if($end_date) $query->where('created_at', '<=', Carbon::parse($end_date));
-        if($min_value) $query->where('created_at', '>=', Carbon::parse($min_value));
-        if($max_value) $query->where('created_at', '<=', Carbon::parse($max_value));
+        if($min_value) $query->where('value', '>=', $min_value);
+        if($max_value) $query->where('value', '<=', $max_value);
         if($creator_id) $query->where('creator_id', $creator_id);
 
-        $projects =$query->get()
-            ->map(fn ($project) => [
+        $projects =$query->paginate($page_size)
+            ->through(fn ($project) => [
                 'id' => $project->id,
                 'name' => $project->name,
                 'status' => $project->status,

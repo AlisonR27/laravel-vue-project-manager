@@ -4,10 +4,13 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { Table } from '@/components/ui/table';
 import DeleteItem from '@/components/DeleteItem.vue';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import ProjectSearchForm from '@/components/ProjectSearchForm.vue';
 
 import { addToast } from '@/composables/useToast';
+import Pagination from '@/components/ui/pagination/Pagination.vue';
+import { useTasksStore } from '@/store/tasks';
+import { useProjectStore } from '@/store/projects';
 
 const breadcrumbs = [
     {
@@ -20,6 +23,7 @@ const breadcrumbs = [
     },
 ] as BreadcrumbItem[];
 
+
 type ProjectRowKeys = {
     id: number;
     name: string;
@@ -30,7 +34,7 @@ type ProjectRowKeys = {
 
 const props = defineProps({
     projects: {
-        type: Array<ProjectRowKeys>,
+        type: Object,
         required: true,
     },
     alert: {
@@ -67,6 +71,13 @@ const deleteOpen = ref(false);
 
 const deleteModalId = ref(0);
 
+const pageSize = computed(() => {
+    return useProjectStore().filters.page_size;
+});
+const page = computed(() => {
+    return useProjectStore().filters.page;
+});
+
 function handleProjectAction({ id, type }: { id: number; type: string }) {
     switch (type) {
         case 'detail':
@@ -83,14 +94,37 @@ function handleProjectAction({ id, type }: { id: number; type: string }) {
 }
 
 function handleFormFilters(filters: any) {
-    router.get(route('project.all'), filters);
+    const cleanFilters = filters
+    delete cleanFilters.page
+    delete cleanFilters.page_size
+    router.get(route('project.all'), cleanFilters);
+}
+
+function handlePaginate(page: any) {
+    router.get(route('task.all'), { ...useTasksStore().getOnlyFilled(), page }, { preserveState: true });
+}
+
+/**
+ * After selecting a page size, if it's other than default put it to the query, if is the default, remove from the query
+ * Obs. Replicate to each list page
+ * @param page_size
+ */
+function handlePageSize(page_size: number) {
+    const filled = useTasksStore().getOnlyFilled();
+    if (page_size != 10) router.get(route('task.all'), { ...filled, page_size }, {});
+    else {
+        delete filled.page_size;
+        router.get(route('task.all'), { ...filled }, {});
+    }
 }
 
 watch(
     () => props.alert,
-    (newAlert) => { if (newAlert != null) addToast('Alert', newAlert!.message, newAlert!.type) },
-    { immediate: true }
-)
+    (newAlert) => {
+        if (newAlert != null) addToast('Alert', newAlert!.message, newAlert!.type);
+    },
+    { immediate: true },
+);
 </script>
 
 <template>
@@ -107,7 +141,7 @@ watch(
                 <Table
                     title="Recent Projects"
                     :headers="headers"
-                    :rows="projects"
+                    :rows="projects.data"
                     row-key="id"
                     :paginated="false"
                     type="Projects"
@@ -119,6 +153,15 @@ watch(
                         </td>
                     </template>
                 </Table>
+                <Pagination
+                    v-if="projects.total > 8"
+                    @paginate="handlePaginate"
+                    @size="handlePageSize"
+                    class="mt-5 flex flex-row"
+                    :total="projects.total"
+                    :currentPage="Number(page)"
+                    :page_size="Number(pageSize)"
+                />
             </div>
         </div>
     </AppLayout>
