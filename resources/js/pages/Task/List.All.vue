@@ -1,13 +1,19 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { Table } from '@/components/ui/Table';
 
-import { ref } from 'vue';
+import { computed, onBeforeMount, ref } from 'vue';
 
 import TaskDialog from '@/components/TaskDialog.vue';
+import ProjectSearchForm from '@/components/ProjectSearchForm.vue';
+import TaskSearchForm from '@/components/TaskSearchForm.vue';
+import Pagination from '@/components/ui/pagination/Pagination.vue';
+import { useTasksStore } from '@/store/tasks';
+import initializeFilters from '@/composables/useFilterInitializer';
 
+const taskStore = useTasksStore()
 
 const breadcrumbs = [
     {
@@ -30,14 +36,14 @@ type TasksRowKeys = {
 
 const props = defineProps({
     tasks: {
-        type: Array<TasksRowKeys>,
+        type: Object,
         required: true,
     },
     deleted: {
         type: Boolean,
         required: false,
-        default: false
-    }
+        default: false,
+    },
 });
 
 const headers = [
@@ -67,15 +73,20 @@ const headers = [
 const openedTask = ref(0)
 const isTaskOpen = ref(false)
 
-function openTask({ id, type} : { id: number, type: string}) {
+const pageSize = computed(() => {
+    return useTasksStore().filters.page_size
+})
+const page = computed(() => {
+    return useTasksStore().filters.page
+})
 
+function openTask({ id, type }: { id: number; type: string }) {
     switch (type) {
         case 'detail':
             openedTask.value = id
             isTaskOpen.value = true
             break
     }
-
 }
 
 const isAlertClosed = ref(false)
@@ -84,6 +95,31 @@ function closeTask() {
     openedTask.value = 0
     isTaskOpen.value = false
 }
+function handleFormFilters(filters: any) {
+    router.get(route('task.all'), filters)
+}
+
+function handlePaginate(page: any) {
+    router.get(route('task.all'), { ...useTasksStore().getOnlyFilled(), page }, { preserveState: true })
+}
+
+/**
+ * After selecting a page size, if it's other than default put it to the query, if is the default, remove from the query
+ * Obs. Replicate to each list page
+ * @param page_size
+ */
+function handlePageSize(page_size: number) {
+    const filled = useTasksStore().getOnlyFilled()
+    if (page_size != 10) router.get(route('task.all'), { ...filled, page_size }, {  })
+    else {
+        delete filled.page_size
+        router.get(route('task.all'), { ...filled }, {  })
+    }
+}
+
+onBeforeMount(() => {
+    initializeFilters(taskStore)
+})
 </script>
 
 <template>
@@ -93,27 +129,37 @@ function closeTask() {
     </Suspense>
     <AppLayout :breadcrumbs="breadcrumbs">
         <template v-if="deleted && !isAlertClosed">
-            <div class="bg-green-100 border border-green-500 text-green-800 px-4 py-3 rounded relative my-4" role="alert">
+            <div class="relative my-4 rounded border border-green-500 bg-green-100 px-4 py-3 text-green-800" role="alert">
                 <span class="block sm:inline">The task was deleted successfully.</span>
-                <span class="absolute right-0 hover:bg-green-200 top-2 px-3 rounded-4xl py-1 cursor-pointer" role="button" @click="isAlertClosed = !isAlertClosed">
-                        &times;
-                    </span>
+                <span
+                    class="absolute top-2 right-0 cursor-pointer rounded-4xl px-3 py-1 hover:bg-green-200"
+                    role="button"
+                    @click="isAlertClosed = !isAlertClosed"
+                >
+                    &times;
+                </span>
             </div>
         </template>
-        <div class="flex flex-1 flex-col gap-4 rounded-xl px-4 py-2">
-            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 px-8 py-6 md:min-h-min dark:border-sidebar-border">
-                <h3 class="text-xl font-bold text-accent-foreground">Filtros</h3>
-                To do
-            </div>
+        <div class="flex flex-col gap-4 rounded-xl px-4 py-2">
+            <TaskSearchForm @filter="handleFormFilters" />
         </div>
         <div class="flex flex-1 flex-col gap-4 rounded-xl p-4">
-            <Table title="All Tasks" :headers="headers" :rows="tasks" row-key="id" type="Tasks" :paginated="false" @task="openTask" />
+            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 px-8 py-6 md:min-h-min dark:border-sidebar-border">
+                <Table title="All Tasks" :headers="headers" :rows="tasks.data" row-key="id" type="Tasks" :paginated="false" @task="openTask">
+                    <template v-slot:empty>
+                        <td colspan="5" class="py-10">
+                            <b class="w-full text-center text-xl"> No Tasks found on the registry </b>
+                        </td>
+                    </template>
+                </Table>
+                <Pagination v-if="tasks.total > 8" @paginate="handlePaginate" @size="handlePageSize" class="mt-5 flex flex-row" :total="tasks.total" :currentPage="Number(page)" :page_size="Number(pageSize)" />
+            </div>
         </div>
     </AppLayout>
 </template>
 
 <style scoped>
-::v-deep(button[type="button"]:first-of-type){
-    cursor:pointer !important;
+::v-deep(button[type='button']:first-of-type) {
+    cursor: pointer !important;
 }
 </style>
