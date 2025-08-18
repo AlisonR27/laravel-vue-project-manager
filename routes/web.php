@@ -50,6 +50,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('dashboard');
 
+    Route::match(['get', 'post'], '/projects/new', [ProjectController::class, 'store'])->name('project.create');
     Route::match(['get', 'put'], '/projects/{project}/edit', [ProjectController::class, 'update'])->name('project.update');
 
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('project');
@@ -66,6 +67,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::delete('/tasks/{id}', [TaskController::class, 'destroy'])->name('task.destroy');
 
+    Route::match(['get', 'post'], '/tasks/new', [TaskController::class, 'store'])->name('task.create');
     Route::match(['get', 'put'], '/task/{project}/edit', [TaskController::class, 'update'])->name('task.update');
 
     Route::get('/users/all', [ProfileController::class, 'index'])->name('user.all');

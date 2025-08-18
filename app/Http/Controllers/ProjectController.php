@@ -19,6 +19,8 @@ class ProjectController extends Controller
      */
     public function index(Request $request): \Inertia\Response
     {
+        $alert = session('alert');
+
         $search = $request->query('search');
         $status = $request->query('status');
         $start_date = $request->query('start_date');
@@ -54,7 +56,8 @@ class ProjectController extends Controller
 
 
         return Inertia::render('Project/List', [
-            'projects' => $projects
+            'projects' => $projects,
+            'alert' => $alert
         ]);
     }
 
@@ -94,12 +97,17 @@ class ProjectController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->method() === 'GET') {
+            return Inertia::render('Project/Project.Create');
+        }
+
         $validated = $request->validate([
             'name'=> 'required|string|max:60',
-            'start_date' => 'required|datetime',
-            'end_date' => 'required|datetime|after_or_equal:start_date',
-            'value' => 'required|decimal|min:0',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'value' => 'required|decimal:0,2|min:0',
             'status' => 'in:Active,Inactive',
+            'creator_id' => 'required|integer|exists:users,id',
         ]);
 
         $project = Project::create([
@@ -108,12 +116,13 @@ class ProjectController extends Controller
             'end_date' => $validated['end_date'],
             'value' => $validated['value'],
             'status' => $validated['status'],
+            'creator_id' => $validated['creator_id'],
         ]);
 
-        return response()->json([
-            'message' => 'Project created',
-            'data' => $project
-        ], 201);
+        return redirect()->route('project.all')->with('alert', [
+            'type' => 'success',
+            'message' => 'The project was created successfully.'
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -121,7 +130,10 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
 
         if (!auth()->user()->can('update', $project)) {
-            return redirect()->route('project.all', ['warning' => 'You do not have permission to perform this action']);
+            return redirect()->route('project.all')->with('alert', [
+                'type'=>'error',
+                'message'=>'You do not have permission to perform this action.'
+            ]);
         }
 
         if ($request->isMethod('get')) {
@@ -145,9 +157,15 @@ class ProjectController extends Controller
     {
         $project = Project::findOrFail($id);
         if (!auth()->user()->can('delete', $project)) {
-            return redirect()->route('project.all', ['warning' => 'You do not have permission to perform this action']);
+            return redirect()->route('project.all')->with('alert', [
+                    'type' => 'error',
+                    'message' => 'You do not have permission to perform this action'
+            ]);
         }
         $project->delete();
-        return redirect()->route('project.all')->with('deleted', 'The project was deleted successfully.');
+        return redirect()->route('project.all')->with('alert', [
+            'type' => 'success',
+            'message' => 'The project was deleted successfully.'
+        ]);
     }
 }
