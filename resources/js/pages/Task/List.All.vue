@@ -1,19 +1,21 @@
 <script setup lang="ts">
+import { computed, onBeforeMount, ref, watch, watchEffect } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
-import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
+
 import { Table } from '@/components/ui/Table';
 
-import { computed, onBeforeMount, ref } from 'vue';
-
+import AppLayout from '@/layouts/AppLayout.vue';
 import TaskDialog from '@/components/TaskDialog.vue';
-import ProjectSearchForm from '@/components/ProjectSearchForm.vue';
 import TaskSearchForm from '@/components/TaskSearchForm.vue';
 import Pagination from '@/components/ui/pagination/Pagination.vue';
-import { useTasksStore } from '@/store/tasks';
 import initializeFilters from '@/composables/useFilterInitializer';
 
-const taskStore = useTasksStore()
+import { useTasksStore } from '@/store/tasks';
+
+import { addToast } from '@/composables/useToast';
+
+const taskStore = useTasksStore();
 
 const breadcrumbs = [
     {
@@ -34,17 +36,7 @@ type TasksRowKeys = {
     project: string;
 };
 
-const props = defineProps({
-    tasks: {
-        type: Object,
-        required: true,
-    },
-    deleted: {
-        type: Boolean,
-        required: false,
-        default: false,
-    },
-});
+const props = defineProps(['tasks', 'alert']);
 
 const headers = [
     {
@@ -70,37 +62,35 @@ const headers = [
     },
 ];
 
-const openedTask = ref(0)
-const isTaskOpen = ref(false)
+const openedTask = ref(0);
+const isTaskOpen = ref(false);
 
 const pageSize = computed(() => {
-    return useTasksStore().filters.page_size
-})
+    return useTasksStore().filters.page_size;
+});
 const page = computed(() => {
-    return useTasksStore().filters.page
-})
+    return useTasksStore().filters.page;
+});
 
 function openTask({ id, type }: { id: number; type: string }) {
     switch (type) {
         case 'detail':
-            openedTask.value = id
-            isTaskOpen.value = true
-            break
+            openedTask.value = id;
+            isTaskOpen.value = true;
+            break;
     }
 }
 
-const isAlertClosed = ref(false)
-
 function closeTask() {
-    openedTask.value = 0
-    isTaskOpen.value = false
+    openedTask.value = 0;
+    isTaskOpen.value = false;
 }
 function handleFormFilters(filters: any) {
-    router.get(route('task.all'), filters)
+    router.get(route('task.all'), filters);
 }
 
 function handlePaginate(page: any) {
-    router.get(route('task.all'), { ...useTasksStore().getOnlyFilled(), page }, { preserveState: true })
+    router.get(route('task.all'), { ...useTasksStore().getOnlyFilled(), page }, { preserveState: true });
 }
 
 /**
@@ -109,17 +99,23 @@ function handlePaginate(page: any) {
  * @param page_size
  */
 function handlePageSize(page_size: number) {
-    const filled = useTasksStore().getOnlyFilled()
-    if (page_size != 10) router.get(route('task.all'), { ...filled, page_size }, {  })
+    const filled = useTasksStore().getOnlyFilled();
+    if (page_size != 10) router.get(route('task.all'), { ...filled, page_size }, {});
     else {
-        delete filled.page_size
-        router.get(route('task.all'), { ...filled }, {  })
+        delete filled.page_size;
+        router.get(route('task.all'), { ...filled }, {});
     }
 }
 
 onBeforeMount(() => {
-    initializeFilters(taskStore)
-})
+    initializeFilters(taskStore);
+});
+
+watch(
+    () => props.alert,
+    (newAlert) => { if (newAlert != null) addToast('Alert', newAlert!.message, newAlert!.type) },
+    { immediate: true }
+)
 </script>
 
 <template>
@@ -128,18 +124,6 @@ onBeforeMount(() => {
         <TaskDialog :is-open="isTaskOpen" :task-id="openedTask" @close="closeTask" />
     </Suspense>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <template v-if="deleted && !isAlertClosed">
-            <div class="relative my-4 rounded border border-green-500 bg-green-100 px-4 py-3 text-green-800" role="alert">
-                <span class="block sm:inline">The task was deleted successfully.</span>
-                <span
-                    class="absolute top-2 right-0 cursor-pointer rounded-4xl px-3 py-1 hover:bg-green-200"
-                    role="button"
-                    @click="isAlertClosed = !isAlertClosed"
-                >
-                    &times;
-                </span>
-            </div>
-        </template>
         <div class="flex flex-col gap-4 rounded-xl px-4 py-2">
             <TaskSearchForm @filter="handleFormFilters" />
         </div>
@@ -152,7 +136,15 @@ onBeforeMount(() => {
                         </td>
                     </template>
                 </Table>
-                <Pagination v-if="tasks.total > 8" @paginate="handlePaginate" @size="handlePageSize" class="mt-5 flex flex-row" :total="tasks.total" :currentPage="Number(page)" :page_size="Number(pageSize)" />
+                <Pagination
+                    v-if="tasks.total > 8"
+                    @paginate="handlePaginate"
+                    @size="handlePageSize"
+                    class="mt-5 flex flex-row"
+                    :total="tasks.total"
+                    :currentPage="Number(page)"
+                    :page_size="Number(pageSize)"
+                />
             </div>
         </div>
     </AppLayout>

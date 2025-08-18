@@ -88,9 +88,9 @@ function handleFormFilters(filters: any) {
 
 watch(
     () => props.alert,
-    (newAlert) => {
-        addToast('Alert', newAlert!.message, newAlert!.type);
-})
+    (newAlert) => { if (newAlert != null) addToast('Alert', newAlert!.message, newAlert!.type) },
+    { immediate: true }
+)
 </script>
 
 <template>
