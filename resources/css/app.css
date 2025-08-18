@@ -175,3 +175,7 @@ td {
 li[data-slot=breadcrumb-item]:last-of-type span{
     font-weight: bold;
 }
+
+html.dark select > option {
+    background-color: #222;
+}
