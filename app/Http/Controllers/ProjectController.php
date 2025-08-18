@@ -11,15 +11,58 @@ use Throwable;
 
 class ProjectController extends Controller
 {
-    //
-    public function index(): \Inertia\Response
+    /**
+     * @param Request $request
+     * @return \Inertia\Response
+     * Handle the display of all the projects.
+     * When the request is not empty, filters the data to be shown.
+     */
+    public function index(Request $request): \Inertia\Response
     {
-        $projects = Project::select('id', 'name', 'status', 'updated_at', 'creator_id')->with('creator')->get();
+        $search = $request->query('search');
+        $status = $request->query('status');
+        $start_date = $request->query('start_date');
+        $end_date = $request->query('end_date');
+        $min_value = $request->query('min_value');
+        $max_value = $request->query('max_value');
+        $creator_id = $request->query('creator_id');
+
+        $query = Project::select('id', 'name', 'status', 'updated_at', 'creator_id')
+            ->with('creator');
+
+        if($search) $query->where('name', 'like', '%'.$search.'%');
+        if($status) $query->where('status', $status);
+        if($start_date) $query->where('created_at', '>=', Carbon::parse($start_date));
+        if($end_date) $query->where('created_at', '<=', Carbon::parse($end_date));
+        if($min_value) $query->where('created_at', '>=', Carbon::parse($min_value));
+        if($max_value) $query->where('created_at', '<=', Carbon::parse($max_value));
+        if($creator_id) $query->where('creator_id', $creator_id);
+
+        $projects =$query->get()
+            ->map(fn ($project) => [
+                'id' => $project->id,
+                'name' => $project->name,
+                'status' => $project->status,
+                'updated_at' => $project->updated_at,
+                'creator' => $project->creator,
+                'can' => [
+                    'view' => true,
+                    'update' => auth()->user()->can('update', $project),
+                    'delete' => auth()->user()->can('delete', $project),
+                ]
+            ]);
+
+
         return Inertia::render('Project/List', [
             'projects' => $projects
         ]);
     }
 
+    /**
+     * @param $id
+     * @return \Inertia\Response
+     * Shows data of project and it's child tasks
+     */
     public function show($id)
     {
         $project = Project::with('creator')->findOrFail($id);
@@ -30,14 +73,13 @@ class ProjectController extends Controller
 
         $overdueTasks = Task::where('project_id', $id)->where('due_date', '<=', Carbon::today())->count();
 
-
         return Inertia::render('Project/Project.Detail', [
             'project' => $project,
             'tasks_bi' => [
                 'count' => $taskCount,
                 'active' => $activeTasks,
                 'overdue' => $overdueTasks
-            ]
+            ],
         ]);
     }
 
@@ -74,9 +116,13 @@ class ProjectController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, $id): \Inertia\Response
+    public function update(Request $request, $id)
     {
         $project = Project::findOrFail($id);
+
+        if (!auth()->user()->can('update', $project)) {
+            return redirect()->route('project.all', ['warning' => 'You do not have permission to perform this action']);
+        }
 
         if ($request->isMethod('get')) {
             return Inertia::render('Project/Project.Edit', ['project' => $project]);
@@ -97,8 +143,10 @@ class ProjectController extends Controller
 
     public function destroy($id)
     {
-        // Delete a project
         $project = Project::findOrFail($id);
+        if (!auth()->user()->can('delete', $project)) {
+            return redirect()->route('project.all', ['warning' => 'You do not have permission to perform this action']);
+        }
         $project->delete();
         return redirect()->route('project.all')->with('deleted', 'The project was deleted successfully.');
     }

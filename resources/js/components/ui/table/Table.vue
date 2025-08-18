@@ -69,8 +69,8 @@ function emitAction(event: 'project' | 'task', type: string, index: number) {
                         <template v-else-if="header.key == 'actions'">
                             <template v-if="type == 'Projects'">
                                 <Button title="Detail Project" @click="emitAction('project', 'detail', index)" class="cursor-pointer" size="sm" variant="ghost"><FileSearch/></Button>
-                                <Button title="Edit Project" @click="emitAction('project', 'edit', index)" class="cursor-pointer" size="sm" variant="ghost"><Edit/></Button>
-                                <Button title="Delete Project" @click="emitAction('project', 'delete', index)" class="cursor-pointer" size="sm" variant="ghost"><Trash/></Button>
+                                <Button title="Edit Project" :disabled="!row.can.update" @click="emitAction('project', 'edit', index)" class="cursor-pointer" size="sm" variant="ghost"><Edit/></Button>
+                                <Button title="Delete Project" :disabled="!row.can.delete" @click="emitAction('project', 'delete', index)" class="cursor-pointer" size="sm" variant="ghost"><Trash/></Button>
                             </template>
                             <template v-else-if="type == 'Tasks'">
                                 <Button title="Detail Task" @click="emitAction('task', 'detail', index)" class="cursor-pointer" size="sm" variant="ghost"><Search/></Button>
@@ -81,9 +81,10 @@ function emitAction(event: 'project' | 'task', type: string, index: number) {
                         </template>
                     </td>
                 </tr>
-                <span v-else>
-                    No records of tasks found.
-                </span>
+                <tr v-else>
+                    <slot name="empty">
+                    </slot>
+                </tr>
             </tbody>
         </table>
     </div>
