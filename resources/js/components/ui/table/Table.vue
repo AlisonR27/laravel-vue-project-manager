@@ -37,57 +37,55 @@ function emitAction(event: 'project' | 'task', type: string, index: number) {
 </script>
 
 <template>
-    <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 px-8 py-6 md:min-h-min dark:border-sidebar-border">
-        <h2 v-if="title" class="text-2xl font-bold text-accent-foreground"> {{ props.title }} </h2>
-        <table class="w-full table-auto border-collapse border mt-5">
-            <thead>
-                <template v-if="$slots.thead">
-                    <slot name="thead"></slot>
-                </template>
-                <tr v-else>
-                    <th class="border py-3" v-for="header in headers" :key="header.key" :colspan="header.colspan || 1" > {{ header.label }} </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-if="rows.length > 0" v-for="(row, index) in rows" :key="row[rowKey]" class="py-5 border table-border">
-                    <td v-for="header in headers" :key="header.key" :colspan="header.colspan || 1" :data-key="header.key" class="border px-4 py-3">
-                        <template v-if="baseUrl && header.key == 'id'">
-                            <a :href="`${baseUrl}/${row[header.key]}`">
-                                {{ row[header.key] }}
-                            </a>
-                        </template>
-                        <template v-else-if="header.key == 'user' || header.key == 'creator'">
-                            <div class="flex flex-row py-2 px-3 items-center gap-3">
-                                <UserInfo :user="row[header.key]"/>
-                            </div>
-                        </template>
-                        <template v-else-if="header.key == 'project'">
-                            <div class="py-2 px-3 border rounded-lg max-w-50 whitespace-nowrap overflow-hidden text-ellipsis">
-                                {{ row[header.key].name }}
-                            </div>
-                        </template>
-                        <template v-else-if="header.key == 'actions'">
-                            <template v-if="type == 'Projects'">
-                                <Button title="Detail Project" @click="emitAction('project', 'detail', index)" class="cursor-pointer" size="sm" variant="ghost"><FileSearch/></Button>
-                                <Button title="Edit Project" :disabled="!row.can.update" @click="emitAction('project', 'edit', index)" class="cursor-pointer" size="sm" variant="ghost"><Edit/></Button>
-                                <Button title="Delete Project" :disabled="!row.can.delete" @click="emitAction('project', 'delete', index)" class="cursor-pointer" size="sm" variant="ghost"><Trash/></Button>
-                            </template>
-                            <template v-else-if="type == 'Tasks'">
-                                <Button title="Detail Task" @click="emitAction('task', 'detail', index)" class="cursor-pointer" size="sm" variant="ghost"><Search/></Button>
-                            </template>
-                        </template>
-                        <template v-else>
+    <h2 v-if="title" class="text-2xl font-bold text-accent-foreground"> {{ props.title }} </h2>
+    <table class="w-full table-auto border-collapse border mt-5">
+        <thead>
+            <template v-if="$slots.thead">
+                <slot name="thead"></slot>
+            </template>
+            <tr v-else>
+                <th class="border py-3" v-for="header in headers" :key="header.key" :colspan="header.colspan || 1" > {{ header.label }} </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-if="rows.length > 0" v-for="(row, index) in rows" :key="row[rowKey]" class="py-5 border table-border">
+                <td v-for="header in headers" :key="header.key" :colspan="header.colspan || 1" :data-key="header.key" class="border px-4 py-3">
+                    <template v-if="baseUrl && header.key == 'id'">
+                        <a :href="`${baseUrl}/${row[header.key]}`">
                             {{ row[header.key] }}
+                        </a>
+                    </template>
+                    <template v-else-if="header.key == 'user' || header.key == 'creator'">
+                        <div class="flex flex-row py-2 px-3 items-center gap-3">
+                            <UserInfo :user="row[header.key]"/>
+                        </div>
+                    </template>
+                    <template v-else-if="header.key == 'project'">
+                        <div class="py-2 px-3 border rounded-lg max-w-50 whitespace-nowrap overflow-hidden text-ellipsis">
+                            {{ row[header.key].name }}
+                        </div>
+                    </template>
+                    <template v-else-if="header.key == 'actions'">
+                        <template v-if="type == 'Projects'">
+                            <Button title="Detail Project" @click="emitAction('project', 'detail', index)" class="cursor-pointer" size="sm" variant="ghost"><FileSearch/></Button>
+                            <Button title="Edit Project" :disabled="!row.can.update" @click="emitAction('project', 'edit', index)" class="cursor-pointer" size="sm" variant="ghost"><Edit/></Button>
+                            <Button title="Delete Project" :disabled="!row.can.delete" @click="emitAction('project', 'delete', index)" class="cursor-pointer" size="sm" variant="ghost"><Trash/></Button>
                         </template>
-                    </td>
-                </tr>
-                <tr v-else>
-                    <slot name="empty">
-                    </slot>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+                        <template v-else-if="type == 'Tasks'">
+                            <Button title="Detail Task" @click="emitAction('task', 'detail', index)" class="cursor-pointer" size="sm" variant="ghost"><Search/></Button>
+                        </template>
+                    </template>
+                    <template v-else>
+                        {{ row[header.key] }}
+                    </template>
+                </td>
+            </tr>
+            <tr v-else>
+                <slot name="empty">
+                </slot>
+            </tr>
+        </tbody>
+    </table>
 </template>
 
 <style scoped>
