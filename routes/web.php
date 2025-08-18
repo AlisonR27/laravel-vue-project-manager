@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\TaskController;
 use App\Models\Project;
 use App\Models\Task;
@@ -52,15 +53,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::match(['get', 'put'], '/projects/{project}/edit', [ProjectController::class, 'update'])->name('project.update');
 
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('project');
+
     Route::delete('/projects/{id}', [ProjectController::class, 'destroy'])->name('project.destroy');
+
     Route::get('/projects/', [ProjectController::class, 'index'])->name('project.all');
 
     Route::get('/tasks/', [TaskController::class, 'index'] )->name('task.all');
+
     Route::get('/tasks/{task}', [TaskController::class, 'show'] )->name('task.details');
+
     Route::get('/tasks/{task}/async' , [TaskController::class, 'detailAsync'] )->name('task.async');
+
     Route::delete('/tasks/{id}', [TaskController::class, 'destroy'])->name('task.destroy');
 
     Route::match(['get', 'put'], '/task/{project}/edit', [TaskController::class, 'update'])->name('task.update');
+
+    Route::get('/users/all', [ProfileController::class, 'index'])->name('user.all');
 
 });
 
