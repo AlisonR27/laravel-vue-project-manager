@@ -59,16 +59,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/projects/', [ProjectController::class, 'index'])->name('project.all');
 
+
     Route::get('/tasks/', [TaskController::class, 'index'] )->name('task.all');
+
+    Route::match(['get', 'post'], '/tasks/new', [TaskController::class, 'store'])->name('task.create');
+
+    Route::match(['get', 'put'], '/task/{project}/edit', [TaskController::class, 'update'])->name('task.update');
 
     Route::get('/tasks/{task}', [TaskController::class, 'show'] )->name('task.details');
 
     Route::get('/tasks/{task}/async' , [TaskController::class, 'detailAsync'] )->name('task.async');
 
     Route::delete('/tasks/{id}', [TaskController::class, 'destroy'])->name('task.destroy');
-
-    Route::match(['get', 'post'], '/tasks/new', [TaskController::class, 'store'])->name('task.create');
-    Route::match(['get', 'put'], '/task/{project}/edit', [TaskController::class, 'update'])->name('task.update');
 
     Route::get('/users/all', [ProfileController::class, 'index'])->name('user.all');
 

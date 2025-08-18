@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ class TaskController extends Controller
 {
     public function index(Request $request)
     {
+        $alert = session('alert');
+
         $page_size = $request->query('page_size', 10);
 
         $title = $request->query('title');
@@ -54,26 +57,41 @@ class TaskController extends Controller
         ]);
         return Inertia::render('Task/List.All', [
             'tasks' => $tasks,
+            'alert' => $alert
         ]);
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'string|required',
-            'due_date' => 'datetime|required|after_or_equal:today',
-            'status' => 'required|in:Pending,Completed,Inactive',
-            'project_id' => 'required|integer|exists:projects,id'
-        ]);
+        if($request->method() == 'GET'){
+            $projects = Project::where('creator_id', auth()->id())
+                ->get()
+                ->map(fn ($task) => [ 'id' => $task->id, 'name' => $task->name ]);
+            return Inertia::render('Task/Task.Create', ['projects' => $projects]);
+        }
+        else {
 
-        $task = Task::create([
-            'title'=> $validated['title'],
-            'due_date'=> $validated['due_date'],
-            'status'=> $validated['status'],
-            'project_id'=> $validated['project_id']
-        ]);
 
-        return response()->json($task, 201);
+            $validated = $request->validate([
+                'title' => 'string|required',
+                'due_date' => 'date|required|after_or_equal:today',
+                'project_id' => 'required|integer|exists:projects,id'
+            ]);
+
+
+            $task = Task::create([
+                'title'=> $validated['title'],
+                'due_date'=> $validated['due_date'],
+                'status'=> 'Pending',
+                'project_id'=> $validated['project_id']
+            ]);
+
+
+            return redirect()->route('task.all')->with('alert', [
+                'type' => 'success',
+                'message' => 'The task was created successfully.'
+            ]);
+        }
     }
 
     public function show($id)
