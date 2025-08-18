@@ -55,7 +55,7 @@ function emitAction(event: 'project' | 'task', type: string, index: number) {
                             {{ row[header.key] }}
                         </a>
                     </template>
-                    <template v-else-if="header.key == 'user' || header.key == 'creator'">
+                    <template v-else-if="type =='Projects' && header.key == 'user' || header.key == 'creator'">
                         <div class="flex flex-row py-2 px-3 items-center gap-3">
                             <UserInfo :user="row[header.key]"/>
                         </div>
