@@ -103,21 +103,23 @@ watch(
             <ProjectSearchForm @filter="handleFormFilters" />
         </div>
         <div class="flex flex-1 flex-col gap-4 rounded-xl p-4">
-            <Table
-                title="Recent Projects"
-                :headers="headers"
-                :rows="projects"
-                row-key="id"
-                :paginated="false"
-                type="Projects"
-                @project="handleProjectAction"
-            >
-                <template v-slot:empty>
-                    <td colspan="5" class="py-10">
-                        <b class="w-full text-center text-xl"> No projects found on the registry </b>
-                    </td>
-                </template>
-            </Table>
+            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 px-8 py-6 md:min-h-min dark:border-sidebar-border">
+                <Table
+                    title="Recent Projects"
+                    :headers="headers"
+                    :rows="projects"
+                    row-key="id"
+                    :paginated="false"
+                    type="Projects"
+                    @project="handleProjectAction"
+                >
+                    <template v-slot:empty>
+                        <td colspan="5" class="py-10">
+                            <b class="w-full text-center text-xl"> No projects found on the registry </b>
+                        </td>
+                    </template>
+                </Table>
+            </div>
         </div>
     </AppLayout>
 </template>
