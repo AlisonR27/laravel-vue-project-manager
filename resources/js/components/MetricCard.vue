@@ -15,7 +15,7 @@ const cardVariants: Record<string, string[]> = {
     indigo: ['bg-indigo-200', 'hover:bg-indigo-300', 'dark:border-indigo-900'],
     amber: ['bg-amber-200', 'hover:bg-amber-300', 'dark:border-amber-900'],
     red: ['bg-red-200', 'hover:bg-red-400', 'dark:border-red-950'],
-    gray: ['bg-gray-200', 'hover:bg-gray-300', 'dark:border-gray-900'],
+    gray: ['bg-gray-200', 'hover:bg-gray-300', 'dark:border-gray-700'],
 };
 
 const iconVariants: Record<string, string[]> = {
@@ -36,7 +36,7 @@ const iconClasses = computed(() => [...(iconVariants[props.color] ?? iconVariant
         :class="cardClasses"
         class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-sidebar-border/70 py-4 transition-all xl:aspect-video dark:bg-sidebar"
     >
-        <div class="aspect-square rounded-full p-2" :class="iconClasses">
+        <div v-if="icon" class="aspect-square rounded-full p-2" :class="iconClasses">
             <Component :size="32" :is="icon" />
         </div>
         <b class="mt-2 text-3xl xl:text-4xl"> {{ formattedValue }} </b>
