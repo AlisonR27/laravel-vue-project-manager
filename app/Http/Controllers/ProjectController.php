@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Throwable;
 
@@ -150,6 +151,8 @@ class ProjectController extends Controller
             return Inertia::render('Project/Project.Edit', ['project' => $project]);
         }
 
+
+
         $validated = $request->validate([
             'name'=> 'required|string|max:60',
             'start_date' => 'required|date|',
@@ -158,7 +161,11 @@ class ProjectController extends Controller
             'status' => 'in:Active,Inactive',
         ]);
 
-        $project->update($validated);
+        DB::transaction(function () use ($validated, $project) {
+            $project->fill($validated);
+            $project->tasks()->update(['status' => 'Inactive']);
+            $project->save();
+        });
 
         return inertia::render('Project/Project.Edit', ['project'=> $project, 'updated' => true]);
     }
@@ -167,10 +174,7 @@ class ProjectController extends Controller
     {
         $project = Project::findOrFail($id);
         if (!auth()->user()->can('delete', $project)) {
-            return redirect()->route('project.all')->with('alert', [
-                    'type' => 'error',
-                    'message' => 'You do not have permission to perform this action'
-            ]);
+            abort(403, 'You do not have permission to perform this action');
         }
         $project->delete();
         return redirect()->route('project.all')->with('alert', [
