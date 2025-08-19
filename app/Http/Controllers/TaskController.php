@@ -98,7 +98,15 @@ class TaskController extends Controller
     {
         $task = Task::findOrFail($id);
 
-        return Inertia::render('Task/Task.Detail', ['task'=> $task]);
+        return Inertia::render('Task/Task.Detail',
+            [
+                'task'=> $task,
+                'can' => [
+                        'update' => auth()->user()->can('update', $task),
+                        'delete' => auth()->user()->can('delete', $task),
+                ],
+            ]
+        );
     }
 
     public function detailAsync($id) {

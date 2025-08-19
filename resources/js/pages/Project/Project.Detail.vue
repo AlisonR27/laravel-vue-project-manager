@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
-import { ChevronRight } from 'lucide-vue-next';
+import { ChevronRight, Edit, EllipsisVertical, Trash } from 'lucide-vue-next';
 import MetricCard from '@/components/MetricCard.vue';
 import { Table } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+import DetailDropdown from '@/components/DetailDropdown.vue';
+import DeleteItem from '@/components/DeleteItem.vue';
+import { ref } from 'vue';
 
-const props = defineProps(['project', 'tasks', 'tasks_bi']);
+const props = defineProps(['project', 'tasks', 'tasks_bi', 'can']);
 
 const projectInfoArray: Array<[string, any]> = Object.entries(props.project);
 
@@ -64,20 +66,34 @@ function handleValueFormatting(label: string, value: string) {
 }
 
 function redirectToTask(id: number) {
-    console.log(id)
+    router.visit('/tasks/'+ id)
+}
+
+const deleteOpen = ref(false)
+
+function handleDelete() {
+    deleteOpen.value = true
 }
 </script>
 
 <template>
     <Head :title="`${project.name} - Projects`" />
 
+    <DeleteItem type="project" :item-id="project.id" :open="deleteOpen" @close="deleteOpen = false" />
+
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex gap-4 overflow-x-auto rounded-xl p-4 flex-col">
-            <div class="rounded-xl border border-sidebar-border/70 p-5 dark:border-sidebar-border w-full">
+        <div class="flex flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <DetailDropdown type="project" :can="can" :id="project.id" @delete="handleDelete" />
+            <div class="w-full rounded-xl border border-sidebar-border/70 p-5 dark:border-sidebar-border">
                 <h2 class="text-2xl font-black">{{ project.name }}</h2>
-                <sub class="text-zinc-700 dark:text-zinc-400 mt-2 block"> Last updated at: {{ handleValueFormatting('updated_at', project.updated_at) }} </sub>
+                <sub class="mt-2 block text-zinc-700 dark:text-zinc-400">
+                    Last updated at: {{ handleValueFormatting('updated_at', project.updated_at) }}
+                </sub>
                 <br />
-                <dl aria-description="Specific details of the project" class="w-9/12 xl:w-6/12 relative flex flex-row flex-wrap gap-6 overflow-hidden text-lg">
+                <dl
+                    aria-description="Specific details of the project"
+                    class="relative flex w-9/12 flex-row flex-wrap gap-6 overflow-hidden text-lg xl:w-6/12"
+                >
                     <div class="info-item w-4/12 lg:w-2/12">
                         <dt id="label-id" class="text-neutral-400">Identifier</dt>
                         <dd aria-labelledby="label-id">{{ project.id }}</dd>
@@ -108,27 +124,29 @@ function redirectToTask(id: number) {
                         <dd aria-labelledby="label-end">{{ handleValueFormatting('end_date', project.end_date) }}</dd>
                     </div>
 
-
                     <div class="info-item">
                         <dt id="label-created" class="text-neutral-400">Created At</dt>
                         <dd aria-labelledby="label-created">{{ handleValueFormatting('created_at', project.created_at) }}</dd>
                     </div>
                 </dl>
-                <div class="mt-10 w-full hidden md:flex flex-row gap-4">
+                <div class="mt-10 hidden w-full flex-row gap-4 md:flex">
                     <MetricCard
                         v-for="[key, value] of Object.entries(tasks_bi)"
                         :key="key"
                         color="gray"
                         :label="'tasks ' + key"
                         :value="value"
-                        class="!w-2/12 aspect-square px-5"
+                        class="aspect-square !w-2/12 px-5"
                     />
                 </div>
             </div>
-            <div class="relative rounded-xl border border-sidebar-border/70 p-5 dark:border-sidebar-border w-full">
-                <a :href="`/tasks/?project_id=${project.id}`" class="absolute top-5 right-5 flex flex-row items-center px-2 py-1 rounded gap-2 hover:bg-accent">
+            <div class="relative w-full rounded-xl border border-sidebar-border/70 p-5 dark:border-sidebar-border">
+                <a
+                    :href="`/tasks/?project_id=${project.id}`"
+                    class="absolute top-5 right-5 flex flex-row items-center gap-2 rounded px-2 py-1 hover:bg-accent"
+                >
                     See all
-                    <ChevronRight :size="16" class=""/>
+                    <ChevronRight :size="16" class="" />
                 </a>
                 <Table
                     title="Recent tasks of this project"
@@ -162,6 +180,6 @@ function redirectToTask(id: number) {
 }
 
 :deep(div b ~ span) {
-    text-transform:capitalize;
+    text-transform: capitalize;
 }
 </style>

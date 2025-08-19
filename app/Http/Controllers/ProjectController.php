@@ -89,6 +89,10 @@ class ProjectController extends Controller
         return Inertia::render('Project/Project.Detail', [
             'project' => $project,
             'tasks' => $tasks->latest()->take(5)->get(),
+            'can' => [
+                'update' => auth()->user()->can('update', $project),
+                'delete' => auth()->user()->can('delete', $project),
+            ],
             'tasks_bi' => [
                 'count' => $taskCount,
                 'active' => $activeTasks,

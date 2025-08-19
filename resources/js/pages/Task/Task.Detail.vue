@@ -12,7 +12,7 @@ import type { BreadcrumbItem } from '@/types';
 import { ref } from 'vue';
 import DetailDropdown from '@/components/DetailDropdown.vue';
 
-const props = defineProps(['task']);
+const props = defineProps(['task', 'can']);
 
 const breadcrumbs = [
     {
@@ -42,6 +42,7 @@ function openDelete() {
     <AppLayout :breadcrumbs="breadcrumbs" class="relative">
         <DetailDropdown
             type="task"
+            :can="can"
             :id="task.id"
             @delete="openDelete"
         />

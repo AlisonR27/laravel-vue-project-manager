@@ -5,7 +5,7 @@ import { DropdownMenuArrow, DropdownMenuContent, DropdownMenuItem, DropdownMenuR
 import { Edit, EllipsisVertical, Trash } from 'lucide-vue-next';
 
 const emit = defineEmits(['delete'])
-const props = defineProps(['type', 'id'])
+const props = defineProps(['type', 'id', 'can'])
 </script>
 
 <template>
@@ -15,13 +15,13 @@ const props = defineProps(['type', 'id'])
         </DropdownMenuTrigger>
 
         <DropdownMenuContent side="bottom" align="end" class="rounded-md p-2">
-            <DropdownMenuItem class="DropDownMenuItem rounded-md" role="menuitem" @select.prevent="router.visit(`/${type}/${id}/edit`)">
+            <DropdownMenuItem :disabled="!can.update" class="DropDownMenuItem rounded-md aria-disabled:text-accent hover:bg-sidebar-accent" role="menuitem" @select.prevent="router.visit(`/${type}/${id}/edit`)">
                 <Edit :size="16" /> Edit
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem class="DropDownMenuItem Destructive rounded-md" role="menuitem" @select.prevent.stop="$emit('delete', id)">
+            <DropdownMenuItem :disabled="!can.update" class="DropDownMenuItem Destructive rounded-md hover:bg-destructive aria-disabled:text-accent aria-disabled:hover:bg-red-950" role="menuitem" @select.prevent.stop="$emit('delete', id)">
                 <Trash :size="16" /> Delete
             </DropdownMenuItem>
 
@@ -49,7 +49,9 @@ const props = defineProps(['type', 'id'])
     left: unset;
     right: 15px !important;
 }
-
+.DropDownMenuItem[aria-disabled=true] {
+    cursor:not-allowed;
+}
 .DropDownMenuItem {
     padding-block: calc(var(--spacing) * 3);
     padding-inline: calc(var(--spacing) * 6);
@@ -60,11 +62,5 @@ const props = defineProps(['type', 'id'])
     align-items: center;
     gap: 0.8rem;
     z-index:9999;
-}
-.DropDownMenuItem:hover {
-    background-color: var(--sidebar-accent);
-}
-.DropDownMenuItem.Destructive:hover {
-    background: var(--destructive);
 }
 </style>
