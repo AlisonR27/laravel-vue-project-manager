@@ -41,7 +41,7 @@ function openDelete() {
 
     <AppLayout :breadcrumbs="breadcrumbs" class="relative">
         <DetailDropdown
-            type="task"
+            type="tasks"
             :can="can"
             :id="task.id"
             @delete="openDelete"

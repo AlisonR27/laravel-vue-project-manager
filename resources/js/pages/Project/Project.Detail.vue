@@ -79,7 +79,7 @@ function handleDelete() {
 <template>
     <Head :title="`${project.name} - Projects`" />
 
-    <DeleteItem type="project" :item-id="project.id" :open="deleteOpen" @close="deleteOpen = false" />
+    <DeleteItem type="projects" :item-id="project.id" :open="deleteOpen" @close="deleteOpen = false" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-4 overflow-x-auto rounded-xl p-4">
