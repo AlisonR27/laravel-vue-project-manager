@@ -33,7 +33,13 @@ const form = useForm({
 })
 
 const submit = () => {
-    form.put(route('project.update', props.project.id))
+    if (props.project.status == "Active" && form.status == "Inactive") {
+        if(window.confirm('Are you sure?\nAll child Tasks will be turned Inactive.\nThis action is irreversible')) {
+            form.put(route('project.update', props.project.id))
+        }
+    } else {
+        form.put(route('project.update', props.project.id))
+    }
 }
 
 const isAlertClosed = ref(false)
