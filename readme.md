@@ -61,16 +61,18 @@ php artisan test
 ```
 
 This will execute **Laravel starter kit default tests** as well as a **custom test**.
-
-- **Custom test:** `tests/Feature/AddProjectTest.php`
-- Class: **Feature/AddProjectTest**
+**Custom tests:**
+- `tests/Feature/AddProjectTest.php`
+- `tests/Unit/ProjectCreateTest.php`
 
 Run only the custom test with:
 
 ```bash
 php artisan test --filter=AddProjectTest
+php artisan test --filter=ProjectCreateTest
 # or
 php artisan test tests/Feature/AddProjectTest.php
+php artisan test tests/Unit/AddProjectTest.php
 ```
 
 ## Useful scripts
