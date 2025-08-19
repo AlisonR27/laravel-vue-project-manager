@@ -79,11 +79,11 @@ function handleDelete() {
 <template>
     <Head :title="`${project.name} - Projects`" />
 
-    <DeleteItem type="projects" :item-id="project.id" :open="deleteOpen" @close="deleteOpen = false" />
+    <DeleteItem type="project" :item-id="project.id" :open="deleteOpen" @close="deleteOpen = false" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-4 overflow-x-auto rounded-xl p-4">
-            <DetailDropdown type="project" :can="can" :id="project.id" @delete="handleDelete" />
+            <DetailDropdown type="projects" :can="can" :id="project.id" @delete="handleDelete" />
             <div class="w-full rounded-xl border border-sidebar-border/70 p-5 dark:border-sidebar-border">
                 <h2 class="text-2xl font-black">{{ project.name }}</h2>
                 <sub class="mt-2 block text-zinc-700 dark:text-zinc-400">
