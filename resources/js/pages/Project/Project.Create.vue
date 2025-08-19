@@ -99,6 +99,7 @@ const isAlertClosed = ref(false)
                     <CurrencyInput
                         placeholder="$ 0.00"
                         v-model="form.value"
+                        max="10000000"
                         :options="{
                             locale:'en-US',
                             currency: 'USD',

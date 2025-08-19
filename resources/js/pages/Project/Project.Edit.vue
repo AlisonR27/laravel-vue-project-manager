@@ -105,6 +105,7 @@ const isAlertClosed = ref(false)
                         type="number"
                         step="0.01"
                         min="0"
+                        max="10000000"
                         v-model="form.value"
                         class="w-full border rounded p-2"
                     />

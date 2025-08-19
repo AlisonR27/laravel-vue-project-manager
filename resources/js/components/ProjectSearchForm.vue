@@ -88,13 +88,14 @@ onBeforeMount(() => {
             <CollapsibleContent class="pt-5 transition-all data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
                 <form @submit.prevent="submitFilters" class="flex flex-row flex-wrap gap-4">
                     <input
+                        name="search"
                         v-model="projectsStore.filters.search"
                         type="text"
                         placeholder="Search project name..."
                         class="w-full rounded border px-3 py-2 lg:w-8/12"
                     />
 
-                    <select v-model="projectsStore.filters.status" class="w-full rounded border px-3 py-2 md:w-5/12 lg:w-3/12">
+                    <select id="status" name="status" v-model="projectsStore.filters.status" class="w-full rounded border px-3 py-2 md:w-5/12 lg:w-3/12">
                         <option value="" disabled>No status</option>
                         <option value="Active">Active</option>
                         <option value="Inactive">Inactive</option>
@@ -102,11 +103,13 @@ onBeforeMount(() => {
 
                     <UserSearchCombobox :user="user" @update="updateCreator" class="w-6/12" />
 
-                    <input v-model="projectsStore.filters.start_date" type="date" class="rounded border px-3 py-1" />
-                    <input v-model="projectsStore.filters.end_date" type="date" class="rounded border px-3 py-1" />
+                    <input id="start_date" v-model="projectsStore.filters.start_date" name="start_date" type="date" class="rounded border px-3 py-1" />
+                    <input id="end_date" v-model="projectsStore.filters.end_date" name="end_date" type="date" class="rounded border px-3 py-1" />
                     <CurrencyInput
+                        name="min_value"
                         placeholder="Minimum value"
                         v-model="projectsStore.filters.min_value"
+                        max="10000000"
                         :options="{
                             locale:'en-US',
                             currency: 'USD',
@@ -121,8 +124,10 @@ onBeforeMount(() => {
                         class="border rounded p-2"
                     />
                     <CurrencyInput
+                        name="max_value"
                         placeholder="Maximum value"
                         v-model="projectsStore.filters.max_value"
+                        max="10000000"
                         :options="{
                             locale:'en-US',
                             currency: 'USD',
