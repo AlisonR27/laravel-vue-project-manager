@@ -26,6 +26,7 @@ const breadcrumbs = [
 
 const form = useForm({
     title: props.task.title || '',
+    status: props.task.status || '',
     due_date: props.task.due_date || '',
 })
 
@@ -64,9 +65,8 @@ const isAlertClosed = ref(false)
                     <div v-if="form.errors.title" class="text-red-600 text-sm">{{ form.errors.title }}</div>
                 </div>
 
-                <!-- Data início -->
                 <div>
-                    <label for="start_date" class="block font-medium">Data de Início</label>
+                    <label for="start_date" class="block font-medium">Due Date</label>
                     <input
                         id="start_date"
                         type="date"
@@ -75,14 +75,28 @@ const isAlertClosed = ref(false)
                     />
                     <div v-if="form.errors.due_date" class="text-red-600 text-sm">{{ form.errors.due_date }}</div>
                 </div>
-                <!-- Botão -->
+
+                <div>
+                    <label for="start_date" class="block font-medium">Status</label>
+                    <select
+                        id="status"
+                        v-model="form.status"
+                        class="w-full border rounded p-2"
+                    >
+                        <option value="Pending">Pending</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                    <div v-if="form.errors.status" class="text-red-600 text-sm">{{ form.errors.status }}</div>
+                </div>
+
                 <Button
                     variant="default"
                     type="submit"
                     :disabled="form.processing"
                     class="cursor-pointer col-start-1"
                 >
-                    Salvar
+                    Save
                 </Button>
             </form>
         </div>
