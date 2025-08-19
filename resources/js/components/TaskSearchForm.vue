@@ -16,7 +16,7 @@ const tasksStore = useTasksStore()
 const emit = defineEmits(['filter'])
 
 const areAllEmpty = computed(() => {
-    return !(tasksStore.filters.title || tasksStore.filters.status || tasksStore.filters.project_id)
+    return !(tasksStore.filters.title || tasksStore.filters.status || tasksStore.filters.project_id || tasksStore.filters.creator_id)
 });
 const isOpened = ref(false);
 
