@@ -56,7 +56,7 @@ const isAlertClosed = ref(false)
             <form @submit.prevent="submit" class="gap-4 grid grid-cols-3">
                 <!-- Nome -->
                 <div class="col-span-3">
-                    <label for="name" class="block font-medium">Nome</label>
+                    <label for="name" class="block font-medium">Name</label>
                     <input
                         id="name"
                         type="text"
@@ -69,7 +69,7 @@ const isAlertClosed = ref(false)
 
                 <!-- Data início -->
                 <div>
-                    <label for="start_date" class="block font-medium">Data de Início</label>
+                    <label for="start_date" class="block font-medium">Start Date</label>
                     <input
                         id="start_date"
                         type="date"
@@ -81,7 +81,7 @@ const isAlertClosed = ref(false)
 
                 <!-- Data fim -->
                 <div>
-                    <label for="end_date" class="block font-medium">Data de Fim</label>
+                    <label for="end_date" class="block font-medium">End Date</label>
                     <input
                         id="end_date"
                         type="date"
@@ -93,7 +93,7 @@ const isAlertClosed = ref(false)
 
                 <!-- Valor -->
                 <div class="">
-                    <label for="value" class="block font-medium">Valor</label>
+                    <label for="value" class="block font-medium">Value</label>
                     <input
                         id="value"
                         type="number"
@@ -113,8 +113,8 @@ const isAlertClosed = ref(false)
                         v-model="form.status"
                         class="w-full border rounded p-2"
                     >
-                        <option value="Active">Ativo</option>
-                        <option value="Inactive">Inativo</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
                     </select>
                     <div v-if="form.errors.status" class="text-red-600 text-sm">{{ form.errors.status }}</div>
                 </div>
