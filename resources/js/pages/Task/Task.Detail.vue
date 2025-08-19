@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { DropdownMenuContent, DropdownMenuItem, DropdownMenuRoot, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuArrow } from 'reka-ui';
 import { EllipsisVertical, Edit, Trash } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 
@@ -11,6 +10,7 @@ import type { BreadcrumbItem } from '@/types';
 
 
 import { ref } from 'vue';
+import DetailDropdown from '@/components/DetailDropdown.vue';
 
 const props = defineProps(['task']);
 
@@ -40,34 +40,11 @@ function openDelete() {
     <Head :title="`${task.title} - Tasks`" />
 
     <AppLayout :breadcrumbs="breadcrumbs" class="relative">
-        <DropdownMenuRoot class="absolute right-0">
-            <DropdownMenuTrigger as-child>
-                <Button class="absolute top-3 right-0 cursor-pointer" variant="ghost"> <EllipsisVertical /> </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent side="bottom" align="end" class="rounded-md p-2">
-                <DropdownMenuItem
-                    class="DropDownMenuItem rounded-md"
-                    role="menuitem"
-                    @select.prevent="router.visit(`/task/${props.task.id}/edit`)"
-                >
-                    <Edit :size="16" /> Edit
-                </DropdownMenuItem>
-
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem
-                    class="DropDownMenuItem Destructive rounded-md"
-                    role="menuitem"
-                    @select.prevent.stop="openDelete"
-                >
-                    <Trash :size="16" /> Delete
-                </DropdownMenuItem>
-
-                <DropdownMenuArrow />
-            </DropdownMenuContent>
-        </DropdownMenuRoot>
+        <DetailDropdown
+            type="task"
+            :id="task.id"
+            @delete="openDelete"
+        />
 
         <DeleteItem type="task" :item-id="task.id" :open="deleteOpen" @close="deleteOpen = false" />
 
@@ -131,38 +108,5 @@ dt {
     font-weight: bold;
     color: var(--color-gray-400);
 }
-[data-reka-popper-content-wrapper] {
-    background: var(--sidebar-background);
-    filter: drop-shadow(0 0 1px  white);
-    z-index: 10 !important;
-    border-radius:0.25rem;
-}
 
-[data-reka-popper-content-wrapper]:deep(div:only-child) {
-}
-
-[data-reka-popper-content-wrapper]:deep(span, span *) {
-    border-color: var(--sidebar-background) ;
-    fill: var(--sidebar-background) ;
-}
-[data-reka-popper-content-wrapper]:deep(span) {
-    left: unset;
-    right: 15px !important;
-}
-.DropDownMenuItem {
-    padding-block: calc(var(--spacing) * 3);
-    padding-inline: calc(var(--spacing) * 6);
-    display: flex;
-    flex-direction: row;
-    justify-content: start;
-    cursor: pointer;
-    align-items: center;
-    gap: 0.8rem;
-}
-.DropDownMenuItem:hover {
-    background-color: var(--sidebar-accent);
-}
-.DropDownMenuItem.Destructive:hover {
-    background: var(--destructive);
-}
 </style>
